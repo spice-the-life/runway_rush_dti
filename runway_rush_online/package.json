@@ -1,0 +1,9 @@
+{
+  "name": "runway-rush-online",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A browser-based 3D fashion game prototype with Socket.IO rooms.",
+  "main": "server.js",
+  "scripts": {"start": "node server.js"},
+  "dependencies": {"express": "^4.21.2", "socket.io": "^4.8.1"}
+}

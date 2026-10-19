@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RUNWAY RUSH — 3D Fashion Battle</title>
+<style>
+:root{--ink:#271d38;--pink:#ff83cf;--lav:#b49aff;--panel:#ffffffdf;--line:#eadcf7}
+*{box-sizing:border-box}body{margin:0;background:#f7f1ff;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer;transition:transform .15s,filter .15s}button:hover{filter:brightness(.97);transform:translateY(-1px)}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #8e5bde;outline-offset:2px}
+header{height:68px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(100deg,#ffd5f0,#dcd1ff);border-bottom:1px solid #ead6fb;gap:12px}
+.brand{font-size:21px;font-weight:1000;letter-spacing:-1px}.brand span{color:#9146b5}.status{font-size:12px;font-weight:800;background:#ffffffa8;border:1px solid #fff;border-radius:30px;padding:8px 12px}
+main{max-width:1250px;margin:auto;padding:18px;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,.85fr);gap:16px}
+.left,.right{min-width:0}.stage{height:580px;position:relative;overflow:hidden;border-radius:22px;background:#17142d;box-shadow:0 14px 35px #45306420}
+#scene{width:100%;height:100%;display:block}.stagehead{position:absolute;top:15px;left:15px;right:15px;display:flex;justify-content:space-between;gap:8px;pointer-events:none;flex-wrap:wrap}.glass{background:#ffffffdf;backdrop-filter:blur(10px);border:1px solid #ffffffa8;border-radius:12px;padding:10px 13px;font-size:12px;font-weight:850}.timer{font-variant-numeric:tabular-nums;font-size:17px}
+.stagefoot{position:absolute;bottom:14px;left:14px;right:14px;display:flex;justify-content:space-between;gap:8px;align-items:end;pointer-events:none}.hint{max-width:260px;font-size:11px;line-height:1.45;background:#17142dbb;color:#fff;padding:10px 12px;border-radius:11px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:13px;box-shadow:0 5px 18px #543c7110}.panel h2{font-size:17px;margin:0 0 7px}.muted{color:#796c88;font-size:12px;line-height:1.5}.eyebrow{font-size:10px;letter-spacing:1.8px;font-weight:950;color:#8e61b2;text-transform:uppercase}
+input,select{width:100%;padding:11px;border:1px solid #dfd1ef;border-radius:10px;background:#fff;color:var(--ink);min-width:0}
+button.primary{background:#7541b4;color:#fff;border:0;padding:11px 14px;border-radius:11px;font-weight:850}button.secondary{background:#fff;color:#55376e;border:1px solid #dfd1ef;padding:10px 12px;border-radius:10px;font-weight:750}button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.row{display:flex;gap:8px;align-items:center}.row>*{min-width:0}.row .grow{flex:1}.full{width:100%}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.tab{padding:8px 10px;border-radius:9px;border:1px solid #e4d7f0;background:#fff;font-size:12px;font-weight:800;color:#5b4b6b}.tab.active{background:#f1ddff;border:1px solid #b67be0;color:#572887}
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.option{display:flex;align-items:center;gap:9px;text-align:left;padding:9px;border:1px solid #e4d7f0;background:#fff;border-radius:12px;color:var(--ink);min-height:57px}.option.active{border:2px solid #a567d8;background:#f8edff;padding:8px}.swatch{width:30px;height:36px;border-radius:9px;flex-shrink:0;border:1px solid #0001}.option b{font-size:12px;display:block}.option small{font-size:10px;color:#84748f;display:block;margin-top:3px}.palette{display:flex;gap:8px;flex-wrap:wrap}.color{width:28px;height:28px;border-radius:50%;border:2px solid #ffffff;box-shadow:0 0 0 1px #d9cbe7}.color.active{box-shadow:0 0 0 3px #9b63d4}
+.players{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.playerchip{background:#f4eaff;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:800}
+#feed{font-size:12px;line-height:1.55;max-height:110px;overflow:auto;color:#6d5c7d}.hide{display:none!important}.tiny{font-size:11px}.separator{height:1px;background:#eee3f6;margin:13px 0}
+.scoreline{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee4f5;font-size:12px}.scoreline:last-child{border:0}
+@media(max-width:850px){main{grid-template-columns:1fr;padding:10px}.stage{height:min(68vh,560px);min-height:370px}.right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.right .panel{margin:0}.wardrobe{grid-column:1/-1}}
+@media(max-width:560px){header{padding:0 12px}.brand{font-size:17px}main{display:block}.stage{height:430px;min-height:0;margin-bottom:12px}.right{display:block}.right .panel{margin-bottom:10px}.options{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><div class="brand">✦ RUNWAY <span>RUSH</span></div><div class="status" id="connection">OFFLINE DEMO · SINGLE PLAYER</div></header>
+<main>
+<section class="left">
+ <div class="stage"><canvas id="scene"></canvas>
+  <div class="stagehead"><div class="glass"><div class="eyebrow">THEME</div><div id="themeLabel">ENCHANTED GARDEN</div></div><div class="glass"><div class="eyebrow">ROUND TIMER</div><div class="timer" id="timer">03:00</div></div></div>
+  <div class="stagefoot"><div class="hint" id="stageHint">Build your look, then show it off on the runway. Drag to orbit the camera.</div><div class="glass" id="modelLabel">YOUR MODEL</div></div>
+ </div>
+ <div class="panel" style="margin-top:13px"><div class="row"><div class="grow"><div class="eyebrow">FASHION CHALLENGE</div><h2 id="challengeTitle">Enchanted Garden</h2><div class="muted" id="challengeDesc">Botanical fantasy, soft colors, delicate details.</div></div><button class="secondary" id="nextTheme">↻ New theme</button></div></div>
+</section>
+<aside class="right">
+ <section class="panel"><div class="eyebrow">MULTIPLAYER LOBBY</div><h2>Play with friends</h2><p class="muted">Create a room or join with a room code. Online rooms require the Node server included with this project.</p>
+  <label class="tiny" for="playerName">Your runway name</label><input id="playerName" maxlength="18" value="Fashion Icon" style="margin:5px 0 9px">
+  <div class="row"><button class="primary grow" id="createRoom">Create room</button><button class="secondary grow" id="leaveRoom">Leave</button></div>
+  <div class="row" style="margin-top:8px"><input id="roomCode" maxlength="6" placeholder="ROOM CODE" style="text-transform:uppercase"><button class="secondary" id="joinRoom">Join</button></div>
+  <div class="players" id="players"><span class="playerchip">You · solo</span></div>
+  <div class="muted" id="roomMsg" style="margin-top:8px">Demo mode works without a server.</div>
+ </section>
+ <section class="panel"><div class="eyebrow">YOUR STYLE</div><h2>Build your outfit</h2><div class="tabs" id="categoryTabs"><button class="tab active" data-cat="outfit">Clothes</button><button class="tab" data-cat="hair">Hair</button><button class="tab" data-cat="shoes">Shoes</button><button class="tab" data-cat="accessory">Extras</button></div>
+  <div class="wardrobe" id="wardrobe"></div>
+  <div class="separator"></div><div class="eyebrow">COLOR STUDIO</div><p class="muted">Choose a color for your current item.</p><div class="palette" id="palette"></div>
+  <div class="row" style="margin-top:14px"><button class="secondary grow" id="randomize">✦ Style me</button><button class="primary grow" id="saveLook">Save look</button></div>
+ </section>
+ <section class="panel"><div class="eyebrow">RUNWAY SHOW</div><h2>Walk & vote</h2><p class="muted">Lock your look to enter the show. In online rooms, players can vote for each other's outfits.</p><div class="row"><button class="primary grow" id="lockLook">Lock look & walk</button><button class="secondary" id="voteBtn">Vote ★</button></div><div id="showStatus" class="muted" style="margin-top:9px">Your look isn't locked yet.</div><div class="separator"></div><div id="scores"><div class="muted">Scores will appear here.</div></div>
+ </section>
+ <section class="panel"><div class="eyebrow">ROOM ACTIVITY</div><div id="feed">Welcome to Runway Rush! Your look is ready for the spotlight.</div></section>
+</aside>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+const $=id=>document.getElementById(id);
+const themes=[
+ {name:'Enchanted Garden',desc:'Botanical fantasy, soft colors, delicate details.',color:0x44345c},
+ {name:'Cyber Pop',desc:'Electric color, futuristic silhouettes, metallic shine.',color:0x172c58},
+ {name:'Royal Ball',desc:'Regal elegance, grand shapes, polished accessories.',color:0x49304f},
+ {name:'Dark Academia',desc:'Bookish layers, rich tones, vintage details.',color:0x493b37},
+ {name:'Y2K Superstar',desc:'Glossy nostalgia, playful accessories, pop-star energy.',color:0x57355c},
+ {name:'Cloud Nine',desc:'Airy fabrics, pale pastels, dreamy silhouettes.',color:0x526d9b}
+];
+const catalog={
+ outfit:[{name:'Sculpted Mini Dress',type:'dress',color:'#ed79c7',detail:'Satin'},{name:'Runway Gown',type:'gown',color:'#8f66d9',detail:'Dramatic'},{name:'Cropped Jacket Set',type:'set',color:'#72b9d7',detail:'Streetwear'},{name:'Fairy Layer Dress',type:'fairy',color:'#83d6b2',detail:'Sheer layers'},{name:'Tailored Suit',type:'suit',color:'#4b4c72',detail:'Sharp fit'},{name:'Starlet Two-Piece',type:'two',color:'#f3bf5c',detail:'Shimmer'}],
+ hair:[{name:'Long Waves',type:'waves',color:'#54352f',detail:'Soft volume'},{name:'High Ponytail',type:'pony',color:'#a56a3c',detail:'Sleek'},{name:'Bouncy Bob',type:'bob',color:'#e2b77e',detail:'Chic'},{name:'Fantasy Buns',type:'buns',color:'#bd71c9',detail:'Playful'},{name:'Silver Shag',type:'shag',color:'#b7bfd4',detail:'Edgy'}],
+ shoes:[{name:'Platform Boots',type:'boots',color:'#322b46',detail:'Bold'},{name:'Crystal Heels',type:'heels',color:'#f4d8ed',detail:'Glam'},{name:'Street Sneakers',type:'sneakers',color:'#fff0df',detail:'Casual'},{name:'Ribbon Flats',type:'flats',color:'#d98bc2',detail:'Sweet'}],
+ accessory:[{name:'Star Halo',type:'halo',color:'#f5d46e',detail:'Celestial'},{name:'Butterfly Wings',type:'wings',color:'#dba5f4',detail:'Fantasy'},{name:'Statement Earrings',type:'earrings',color:'#f3d47d',detail:'Gold'},{name:'Heart Bag',type:'bag',color:'#ef8ebc',detail:'Cute'},{name:'Royal Tiara',type:'tiara',color:'#c4a1ff',detail:'Regal'}]
+};
+let currentTheme=0,cat='outfit',selected={outfit:0,hair:0,shoes:0,accessory:0},colors={outfit:'#ed79c7',hair:'#54352f',shoes:'#322b46',accessory:'#f5d46e'},locked=false,remaining=180,roomCode=null,online=false,playersOnline=[],myId=null;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x17142d);scene.fog=new THREE.Fog(0x17142d,12,32);
+const camera=new THREE.PerspectiveCamera(34,1,.1,100);camera.position.set(5,4.1,10);camera.lookAt(0,2.2,0);
+const renderer=new THREE.WebGLRenderer({canvas:$('scene'),antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
+scene.add(new THREE.HemisphereLight(0xffe9fb,0x41325c,2.1));
+const keyLight=new THREE.DirectionalLight(0xffe1f5,3);keyLight.position.set(4,8,5);keyLight.castShadow=true;scene.add(keyLight);
+const rim=new THREE.PointLight(0x9b83ff,30,18);rim.position.set(-4,4,-3);scene.add(rim);
+const floorMat=new THREE.MeshStandardMaterial({color:0x302548,roughness:.45,metalness:.2});
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(100,100),floorMat);floor.rotation.x=-Math.PI/2;floor.position.y=-.04;floor.receiveShadow=true;scene.add(floor);
+function mat(color,rough=.45,metal=.05){return new THREE.MeshStandardMaterial({color:new THREE.Color(color),roughness:rough,metalness:metal});}
+function mesh(geo,material,x,y,z,sx=1,sy=1,sz=1){let m=new THREE.Mesh(geo,material);m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.castShadow=true;m.receiveShadow=true;avatar.add(m);return m;}
+function cylinder(rt,rb,h,material,x,y,z,radial=24){return mesh(new THREE.CylinderGeometry(rt,rb,h,radial),material,x,y,z);}
+const avatar=new THREE.Group();scene.add(avatar);
+const skin=mat('#f0c3a6',.7),dark=mat('#362a38'),white=mat('#f8eafa'),gold=mat('#f2ce77',.24,.7);
+let clothing=[],hairMeshes=[],accessoryMeshes=[],shoeMeshes=[],bodyMeshes=[];
+function clearList(list){list.forEach(m=>{avatar.remove(m);m.geometry.dispose();if(m.material!==skin&&m.material!==gold&&m.material!==dark&&m.material!==white)m.material.dispose()});list.length=0}
+function addTo(list,m){list.push(m);return m}
+function buildBody(){
+ clearList(bodyMeshes);clearList(clothing);clearList(hairMeshes);clearList(accessoryMeshes);clearList(shoeMeshes);
+ // stylized fashion mannequin with articulated silhouette
+ addTo(bodyMeshes,mesh(new THREE.SphereGeometry(.36,32,24),skin,0,3.25,0, .82,1.04,.8));
+ addTo(bodyMeshes,cylinder(.13,.15,.28,skin,0,2.96,0,24));
+ addTo(bodyMeshes,mesh(new THREE.SphereGeometry(.145,24,18),skin,-.48,2.48,0,.9,1.8,.9));
+ addTo(bodyMeshes,mesh(new THREE.SphereGeometry(.145,24,18),skin,.48,2.48,0,.9,1.8,.9));
+ addTo(bodyMeshes,mesh(new THREE.SphereGeometry(.19,24,20),skin,-.18,1.65,0,.8,2.5,.9));
+ addTo(bodyMeshes,mesh(new THREE.SphereGeometry(.19,24,20),skin,.18,1.65,0,.8,2.5,.9));
+ // facial features, stylized rather than emoji
+ addTo(bodyMeshes,mesh(new THREE.SphereGeometry(.026,12,8),dark,-.115,3.29,.282,1,1, .5));
+ addTo(bodyMeshes,mesh(new THREE.SphereGeometry(.026,12,8),dark,.115,3.29,.282,1,1,.5));
+ addTo(bodyMeshes,mesh(new THREE.TorusGeometry(.055,.012,8,18,Math.PI),mat('#b85d78'),0,3.17,.29,1,1,1));
+ // arms and hands
+ for(const side of [-1,1]){
+ addTo(bodyMeshes,mesh(new THREE.CapsuleGeometry(.075,.65,6,12),skin,side*.53,2.42,.01,1,1,1).rotation.z=side*-.15);
+ addTo(bodyMeshes,mesh(new THREE.SphereGeometry(.085,16,12),skin,side*.61,1.99,.02,.9,1.1,.8));
+ }
+}
+function removeType(list){clearList(list)}
+function updateClothes(){
+ clearList(clothing);clearList(hairMeshes);clearList(accessoryMeshes);clearList(shoeMeshes);
+ const outfit=catalog.outfit[selected.outfit],c=mat(colors.outfit,.28,.12);
+ const cloth=(geo,x,y,z,sx=1,sy=1,sz=1)=>addTo(clothing,mesh(geo,c,x,y,z,sx,sy,sz));
+ // torso + skirt silhouette vary by outfit
+ cloth(new THREE.CapsuleGeometry(.27,.48,6,18),0,2.52,0,1,1,.82);
+ if(outfit.type==='gown'||outfit.type==='fairy'){
+ cloth(new THREE.CylinderGeometry(.24,.7,1.25,32,1,true),0,1.68,0,1,1,.82);
+ cloth(new THREE.CylinderGeometry(.24,.62,.12,32),0,1.05,0,1,1,.82);
+ }else if(outfit.type==='dress'){
+ cloth(new THREE.CylinderGeometry(.24,.48,.78,32,1,true),0,1.92,0,1,1,.82);
+ }else if(outfit.type==='set'||outfit.type==='two'){
+ cloth(new THREE.CylinderGeometry(.25,.36,.45,24),0,1.94,0,1,1,.85);
+ cloth(new THREE.BoxGeometry(.43,.36,.24),0,2.53,.01);
+ }else if(outfit.type==='suit'){
+ cloth(new THREE.BoxGeometry(.66,.66,.25),0,2.5,0);
+ cloth(new THREE.CylinderGeometry(.24,.3,.52,24),0,1.94,0,1,1,.85);
+ addTo(clothing,mesh(new THREE.ConeGeometry(.09,.36,3),gold,0,2.48,.15,.65,1,1));
+ }
+ // outfit trim seams
+ const trim=mat('#f8dff6',.25,.4);
+ if(outfit.type==='gown'||outfit.type==='fairy')addTo(clothing,mesh(new THREE.TorusGeometry(.43,.025,8,32),trim,0,2.18,0,1,1,.82));
+ // hair styles
+ const hc=mat(colors.hair,.65);
+ const htype=catalog.hair[selected.hair].type;
+ addTo(hairMeshes,mesh(new THREE.SphereGeometry(.37,24,18),hc,0,3.49,-.015,1,1,.9));
+ if(htype==='waves'||htype==='shag')addTo(hairMeshes,mesh(new THREE.CapsuleGeometry(.12,.72,6,12),hc,-.27,3.08,-.02,.9,1,1).rotation.z=-.08);
+ if(htype==='waves'||htype==='shag')addTo(hairMeshes,mesh(new THREE.CapsuleGeometry(.12,.72,6,12),hc,.27,3.08,-.02,.9,1,1).rotation.z=.08);
+ if(htype==='pony')addTo(hairMeshes,mesh(new THREE.CapsuleGeometry(.11,.6,6,12),hc,.27,3.3,-.25,1,1,1).rotation.z=-.4);
+ if(htype==='bob')addTo(hairMeshes,mesh(new THREE.SphereGeometry(.3,20,16),hc,0,3.23,-.02,1.12,.75,1));
+ if(htype==='buns'){[-.26,.26].forEach(x=>addTo(hairMeshes,mesh(new THREE.SphereGeometry(.14,16,12),hc,x,3.67,0,1,1,1)));}
+ // shoes, custom geometry
+ const sc=mat(colors.shoes,.3,.15);
+ for(const side of [-1,1]){
+ const shoe=mesh(new THREE.BoxGeometry(.22,.13,.39),sc,side*.18, .91,.08,1,1,1);addTo(shoeMeshes,shoe);
+ const leg=mesh(new THREE.CylinderGeometry(.095,.11,.65,16),skin,side*.18,1.22,0);addTo(bodyMeshes,leg);
+ if(catalog.shoes[selected.shoes].type==='boots')addTo(shoeMeshes,mesh(new THREE.CylinderGeometry(.105,.12,.35,16),sc,side*.18,1.1,-.015));
+ }
+ // accessories
+ const atype=catalog.accessory[selected.accessory].type;
+ if(atype==='halo')addTo(accessoryMeshes,mesh(new THREE.TorusGeometry(.31,.035,10,32),gold,0,3.83,0,1,1,.75));
+ if(atype==='tiara'){addTo(accessoryMeshes,mesh(new THREE.TorusGeometry(.25,.025,8,24,Math.PI),gold,0,3.64,.01,1,1,.8));for(let x of [-.17,0,.17])addTo(accessoryMeshes,mesh(new THREE.ConeGeometry(.06,.16,5),gold,x,3.73,.02));}
+ if(atype==='wings'){
+  const wing=mat(colors.accessory,.3,.1);
+  for(const s of [-1,1]){addTo(accessoryMeshes,mesh(new THREE.SphereGeometry(.23,20,16),wing,s*.39,2.68,-.16,1.25,1.5,.25));addTo(accessoryMeshes,mesh(new THREE.SphereGeometry(.15,16,12),gold,s*.47,2.4,-.15,1.2,1.4,.25));}
+ }
+ if(atype==='earrings')for(const x of [-.31,.31])addTo(accessoryMeshes,mesh(new THREE.TorusGeometry(.07,.018,8,16),gold,x,3.12,.02));
+ if(atype==='bag'){addTo(accessoryMeshes,mesh(new THREE.BoxGeometry(.28,.27,.13),mat(colors.accessory,.3,.1),.48,2.05,.15));addTo(accessoryMeshes,mesh(new THREE.TorusGeometry(.1,.018,8,16,Math.PI),gold,.48,2.22,.15));}
+ if(atype==='halo'||atype==='tiara'||atype==='earrings'){} 
+}
+function addRunway(){
+ const platform=new THREE.Mesh(new THREE.CylinderGeometry(2.25,2.4,.2,64),mat('#ad75c9',.3,.3));platform.position.set(0,0,0);platform.receiveShadow=true;scene.add(platform);
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(2.25,.035,8,80),mat('#f6bce8',.2,.6));ring.rotation.x=Math.PI/2;ring.position.y=.12;scene.add(ring);
+ for(let i=0;i<12;i++){let a=i/12*Math.PI*2;let l=new THREE.PointLight(i%2?0xe79cff:0x9fbbff,8,5);l.position.set(Math.cos(a)*4,1.2,Math.sin(a)*4);scene.add(l);}
+ // art-deco light bars in the background
+ for(let x=-5;x<=5;x+=2.5){const bar=new THREE.Mesh(new THREE.BoxGeometry(.035,3,.035),mat('#dba9ff',.3,.5));bar.position.set(x,2.1,-4);scene.add(bar);}
+}
+addRunway();buildBody();updateClothes();
+let dragging=false,lastX=0,rotation=0;
+$('scene').addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;$('scene').setPointerCapture(e.pointerId)});
+$('scene').addEventListener('pointermove',e=>{if(!dragging)return;rotation+=(e.clientX-lastX)*.01;lastX=e.clientX;avatar.rotation.y=rotation});
+$('scene').addEventListener('pointerup',()=>dragging=false);$('scene').addEventListener('pointercancel',()=>dragging=false);
+function resize(){const r=$('scene').getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}window.addEventListener('resize',resize);resize();
+function animate(t){requestAnimationFrame(animate);if(!dragging)avatar.rotation.y=rotation+Math.sin(t*.0004)*.045;renderer.render(scene,camera)}animate(0);
+function addFeed(text){const el=document.createElement('div');el.textContent='✦ '+text;$('feed').prepend(el)}
+function drawWardrobe(){
+ $('wardrobe').innerHTML='';catalog[cat].forEach((item,i)=>{const b=document.createElement('button');b.className='option'+(selected[cat]===i?' active':'');b.innerHTML='<span class="swatch" style="background:'+colors[cat]+'"></span><span><b></b><small></small></span>';b.querySelector('b').textContent=item.name;b.querySelector('small').textContent=item.detail;b.addEventListener('click',()=>{selected[cat]=i;colors[cat]=item.color;updateClothes();drawWardrobe();drawPalette();syncOutfit();});$('wardrobe').append(b);});
+}
+const swatches=['#ed79c7','#8f66d9','#72b9d7','#83d6b2','#f3bf5c','#4b4c72','#f4d8ed','#322b46','#f2ce77','#f7f1ff','#e36d78','#283c66'];
+function drawPalette(){$('palette').innerHTML='';swatches.forEach(c=>{const b=document.createElement('button');b.className='color'+(colors[cat]===c?' active':'');b.style.background=c;b.title=c;b.setAttribute('aria-label','Color '+c);b.addEventListener('click',()=>{colors[cat]=c;updateClothes();drawPalette();drawWardrobe();syncOutfit();});$('palette').append(b);});}
+function syncOutfit(){if(online&&socket?.connected)socket.emit('outfit',{selected,colors,locked});}
+$('categoryTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;cat=b.dataset.cat;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===b));drawWardrobe();drawPalette();});
+$('randomize').onclick=()=>{Object.keys(catalog).forEach(k=>{selected[k]=Math.floor(Math.random()*catalog[k].length);colors[k]=catalog[k][selected[k]].color});updateClothes();drawWardrobe();drawPalette();syncOutfit();addFeed('A fresh look just dropped.');};
+$('saveLook').onclick=()=>{addFeed('Look saved in this browser session.');syncOutfit();$('showStatus').textContent='Look saved. Keep styling or lock it in.';};
+$('lockLook').onclick=()=>{locked=true;$('showStatus').textContent='Your look is locked! Ready for the runway.';$('stageHint').textContent='Look locked! Your avatar is ready for the runway.';addFeed(($('playerName').value||'Fashion Icon')+' locked their look.');syncOutfit();if(online)socket.emit('lockLook');};
+function changeTheme(n){currentTheme=(n+themes.length)%themes.length;const t=themes[currentTheme];$('themeLabel').textContent=t.name.toUpperCase();$('challengeTitle').textContent=t.name;$('challengeDesc').textContent=t.desc;scene.background.set(t.color);scene.fog.color.set(t.color);addFeed('New theme: '+t.name+'.');}
+$('nextTheme').onclick=()=>changeTheme(currentTheme+1);
+drawWardrobe();drawPalette();
+setInterval(()=>{if(remaining>0){remaining--;const m=String(Math.floor(remaining/60)).padStart(2,'0'),s=String(remaining%60).padStart(2,'0');$('timer').textContent=m+':'+s;if(remaining===0){$('stageHint').textContent='Time is up! Lock your look and hit the runway.';addFeed('Time is up!');}}},1000);
+let socket=null;
+try{if(location.protocol!=='file:'){socket=window.io?.();}}catch(e){}
+function setRoomMessage(s){$('roomMsg').textContent=s;}
+function renderPlayers(list){playersOnline=list;$('players').innerHTML='';if(!list.length){$('players').innerHTML='<span class="playerchip">You · solo</span>';return}list.forEach(p=>{const span=document.createElement('span');span.className='playerchip';span.textContent=p.name+(p.id===myId?' · you':'');$('players').append(span);});}
+if(socket){socket.on('connect',()=>{$('connection').textContent='SERVER CONNECTED';online=true;myId=socket.id;setRoomMessage('Connected to the game server. Create or join a room.');});
+socket.on('disconnect',()=>{$('connection').textContent='OFFLINE DEMO · SINGLE PLAYER';online=false;setRoomMessage('Server disconnected. Local styling still works.');});
+socket.on('roomCreated',d=>{roomCode=d.code;$('roomCode').value=d.code;$('connection').textContent='ROOM '+d.code;setRoomMessage('Share code '+d.code+' with friends.');renderPlayers(d.players);addFeed('Room '+d.code+' created.');});
+socket.on('roomJoined',d=>{roomCode=d.code;$('connection').textContent='ROOM '+d.code;setRoomMessage('Joined room '+d.code+'.');renderPlayers(d.players);addFeed('Joined room '+d.code+'.');});
+socket.on('players',renderPlayers);
+socket.on('notice',setRoomMessage);
+socket.on('feed',addFeed);
+socket.on('scores',scores=>{$('scores').innerHTML='';scores.forEach(p=>{const div=document.createElement('div');div.className='scoreline';const a=document.createElement('span');a.textContent=p.name;const b=document.createElement('b');b.textContent=p.score+' ★';div.append(a,b);$('scores').append(div);});});
+socket.on('theme',t=>{const i=themes.findIndex(x=>x.name===t);if(i>=0)changeTheme(i);});
+socket.on('outfits',list=>{if(list.length){$('showStatus').textContent=list.filter(p=>p.locked).length+' / '+list.length+' players have locked their look.';}});
+socket.on('errorMessage',setRoomMessage);
+}
+$('createRoom').onclick=()=>{if(!socket?.connected){setRoomMessage('No game server connected. Start the included server, then open this page at localhost:3000.');return}socket.emit('createRoom',{name:$('playerName').value||'Fashion Icon'});};
+$('joinRoom').onclick=()=>{if(!socket?.connected){setRoomMessage('No game server connected. Start the included server first.');return}socket.emit('joinRoom',{code:$('roomCode').value.toUpperCase(),name:$('playerName').value||'Fashion Icon'});};
+$('leaveRoom').onclick=()=>{if(socket?.connected)socket.emit('leaveRoom');roomCode=null;online=false;$('connection').textContent='OFFLINE DEMO · SINGLE PLAYER';renderPlayers([]);setRoomMessage('Left room. Local styling remains available.');};
+$('voteBtn').onclick=()=>{if(!locked){setRoomMessage('Lock your look before voting.');return}if(socket?.connected&&roomCode){socket.emit('vote',{targetId:null,score:5});addFeed('Vote submitted.');}else{addFeed('Demo vote recorded! Online scoring requires a room with friends.');}};
+</script>
+</body></html>
